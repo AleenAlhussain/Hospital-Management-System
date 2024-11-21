@@ -1,10 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  addDoctor,
-  updateDoctorSchedule,
-  deleteDoctor,
-} from "../redux/doctorSlice";
+import { addDoctor, updateDoctor, deleteDoctor } from "../redux/doctorSlice";
 import {
   TextField,
   Button,
@@ -23,16 +19,27 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  ListItemText,
+  Checkbox,
 } from "@mui/material";
-
+import { selectDoctorsWithSchedules } from "../redux/selectDoctorsWithSchedules";
+import {
+  addStaffSchedule,
+  updateStaffSchedule,
+} from "../redux/staffScheduleSlice";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
 const DoctorManagement = () => {
   const dispatch = useDispatch();
   const doctors = useSelector((state) => state.doctor.doctors);
   const departments = useSelector((state) => state.department.departments);
+  const staffSchedules = useSelector(
+    (state) => state.staffSchedule.staffSchedules
+  );
+  const shifts = useSelector((state) => state.shift.shifts);
   const [doctorName, setDoctorName] = useState("");
   const [specialization, setSpecialization] = useState("");
   const [scheduleDate, setScheduleDate] = useState("");
-  const [scheduleTime, setScheduleTime] = useState("");
   const [openDialog, setOpenDialog] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState(null);
   const [startDate, setStartDate] = useState("");
@@ -40,56 +47,114 @@ const DoctorManagement = () => {
   const [filteredDoctors, setFilteredDoctors] = useState(doctors);
   const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
 
+  const [selectedShifts, setSelectedShifts] = useState([]);
+  const [selectedDates, setSelectedDates] = useState([]);
+  const doctorsWithSchedules = useSelector(selectDoctorsWithSchedules);
+  const [shiftId, setShiftId] = useState([]);
+  const [openScheduleDialog, setOpenScheduleDialog] = useState(false);
+  const [selectedDoctorSchedules, setSelectedDoctorSchedules] = useState([]);
+  const [datesAndShifts, setDatesAndShifts] = useState([]);
+  const handleDateChange = (date) => {
+    if (Array.isArray(selectedDates)) {
+      if (
+        selectedDates.find(
+          (selectedDate) => selectedDate.toDateString() === date.toDateString()
+        )
+      ) {
+        setSelectedDates((prevDates) =>
+          prevDates.filter(
+            (selectedDate) =>
+              selectedDate.toDateString() !== date.toDateString()
+          )
+        );
+      } else {
+        setSelectedDates((prevDates) => [...prevDates, date]);
+      }
+    } else {
+      setSelectedDates([date]);
+    }
+  };
+
+  const handleAddDateShift = () => {
+    if (selectedDates.length > 0 && selectedShifts.length > 0) {
+      selectedDates.forEach((date) => {
+        setDatesAndShifts((prev) => [
+          ...prev,
+          { date: date.toISOString().split("T")[0], shiftIds: selectedShifts },
+        ]);
+      });
+      setSelectedDates([]);
+      setSelectedShifts([]);
+    }
+  };
+
   const handleAddDoctor = () => {
     if (
       doctorName &&
       specialization &&
-      scheduleDate &&
-      scheduleTime &&
+      datesAndShifts.length > 0 &&
       selectedDepartmentId
     ) {
       const newDoctor = {
         id: Date.now(),
         name: doctorName,
         specialization,
-        schedule: {
-          date: scheduleDate,
-          time: scheduleTime,
-        },
         departmentId: selectedDepartmentId,
-        date: new Date().toISOString().split("T")[0],
       };
+
       dispatch(addDoctor(newDoctor));
+
+      datesAndShifts.forEach(({ date, shiftIds }) => {
+        shiftIds.forEach((id) => {
+          const newSchedule = {
+            id: Date.now() + 1,
+            doctor_id: newDoctor.id,
+            shift_id: id,
+            date,
+          };
+
+          dispatch(addStaffSchedule(newSchedule));
+        });
+      });
+
       resetForm();
       handleCloseDialog();
     }
   };
-
   const handleUpdateDoctor = () => {
     if (editingDoctor) {
       const updatedDoctor = {
         id: editingDoctor.id,
         name: doctorName,
         specialization,
-        schedule: {
-          date: scheduleDate,
-          time: scheduleTime,
-        },
         departmentId: selectedDepartmentId,
-        date: editingDoctor.date,
       };
-      dispatch(updateDoctorSchedule(updatedDoctor));
+
+      dispatch(updateDoctor(updatedDoctor));
+
+      shiftId.forEach((id) => {
+        const updatedSchedule = {
+          id: editingDoctor.schedule.id,
+          doctor_id: updatedDoctor.id,
+          shift_id: id,
+          date: scheduleDate,
+        };
+
+        dispatch(updateStaffSchedule(updatedSchedule));
+      });
+
       resetForm();
       handleCloseDialog();
     }
   };
-
   const handleEditDoctor = (doctor) => {
     setEditingDoctor(doctor);
     setDoctorName(doctor.name);
     setSpecialization(doctor.specialization);
-    setScheduleDate(doctor.schedule.date);
-    setScheduleTime(doctor.schedule.time);
+    setScheduleDate(doctor.schedule?.[0]?.date || "");
+    setShiftId(
+      doctor.schedule ? doctor.schedule.map((sched) => sched.shift_id) : []
+    );
     setSelectedDepartmentId(doctor.departmentId);
     setOpenDialog(true);
   };
@@ -97,10 +162,38 @@ const DoctorManagement = () => {
   const resetForm = () => {
     setDoctorName("");
     setSpecialization("");
-    setScheduleDate("");
-    setScheduleTime("");
+    setDatesAndShifts([]);
     setSelectedDepartmentId("");
+    setSelectedDates([]);
+    setSelectedShifts([]);
     setEditingDoctor(null);
+    setScheduleDate("");
+  };
+
+  const handleShowDetails = (doctor) => {
+    const schedules = staffSchedules.filter(
+      (schedule) => schedule.doctor_id === doctor.id
+    );
+    const groupedSchedules = groupSchedulesByDate(schedules);
+    const formattedSchedules = Object.entries(groupedSchedules).map(
+      ([date, shiftIds]) => ({
+        date,
+        shifts: shiftIds.join(", "),
+      })
+    );
+    setSelectedDoctorSchedules(formattedSchedules);
+    setOpenScheduleDialog(true);
+  };
+
+  const groupSchedulesByDate = (schedules) => {
+    return schedules.reduce((acc, schedule) => {
+      const date = schedule.date;
+      if (!acc[date]) {
+        acc[date] = [];
+      }
+      acc[date].push(schedule.shift_id);
+      return acc;
+    }, {});
   };
 
   const handleCloseDialog = () => {
@@ -194,7 +287,7 @@ const DoctorManagement = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {filteredDoctors.map((doctor) => (
+            {doctorsWithSchedules.map((doctor) => (
               <TableRow key={doctor.id}>
                 <TableCell>{doctor.name}</TableCell>
                 <TableCell>{doctor.specialization}</TableCell>
@@ -203,8 +296,22 @@ const DoctorManagement = () => {
                     ?.departmentName || "N/A"}
                 </TableCell>
                 <TableCell>
-                  {doctor.schedule &&
-                    `${doctor.schedule.date} at ${doctor.schedule.time}`}
+                  {(() => {
+                    const groupedSchedules = groupSchedulesByDate(
+                      staffSchedules.filter(
+                        (schedule) => schedule.doctor_id === doctor.id
+                      )
+                    );
+
+                    const lastThreeSchedules =
+                      Object.entries(groupedSchedules).slice(-3);
+
+                    return lastThreeSchedules.map(([date, shiftIds]) => (
+                      <div key={date}>
+                        Date: {date} | Shift: {shiftIds.join(", ")}
+                      </div>
+                    ));
+                  })()}
                 </TableCell>
                 <TableCell>
                   <Button
@@ -219,6 +326,12 @@ const DoctorManagement = () => {
                   >
                     Delete
                   </Button>
+                  <Button
+                    sx={{ color: "#469E82" }}
+                    onClick={() => handleShowDetails(doctor)}
+                  >
+                    Show Details
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -232,9 +345,7 @@ const DoctorManagement = () => {
         maxWidth="sm"
         fullWidth
       >
-        <DialogTitle>
-          {editingDoctor ? "Edit Doctor" : "Add Doctor"}
-        </DialogTitle>
+        <DialogTitle>Add Doctor</DialogTitle>
         <DialogContent>
           <TextField
             label="Doctor Name"
@@ -250,47 +361,108 @@ const DoctorManagement = () => {
             onChange={(e) => setSpecialization(e.target.value)}
             margin="normal"
           />
-          <TextField
-            type="date"
-            label="Schedule Date"
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-            value={scheduleDate}
-            onChange={(e) => setScheduleDate(e.target.value)}
-            margin="normal"
+          <Calendar
+            onChange={handleDateChange}
+            value={selectedDates}
+            selectRange={false}
+            tileClassName={({ date }) => {
+              return selectedDates.find(
+                (selectedDate) =>
+                  selectedDate.toDateString() === date.toDateString()
+              )
+                ? "selected-date"
+                : "";
+            }}
           />
-          <TextField
-            type="time"
-            label="Schedule Time"
-            InputLabelProps={{ shrink: true }}
-            fullWidth
-            value={scheduleTime}
-            onChange={(e) => setScheduleTime(e.target.value)}
-            margin="normal"
-          />
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Shifts</InputLabel>
+            <Select
+              multiple
+              value={selectedShifts}
+              onChange={(e) => setSelectedShifts(e.target.value)}
+              renderValue={(selected) =>
+                selected
+                  .map(
+                    (shiftId) =>
+                      shifts.find((shift) => shift.id === shiftId)?.name
+                  )
+                  .join(", ")
+              }
+            >
+              {shifts.map((shift) => (
+                <MenuItem key={shift.id} value={shift.id}>
+                  <Checkbox checked={selectedShifts.indexOf(shift.id) > -1} />
+                  <ListItemText primary={shift.name} />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Button variant="outlined" onClick={handleAddDateShift}>
+            Add Date and Shifts
+          </Button>
+
+          <div style={{ marginTop: "1rem" }}>
+            <h4>Added Dates and Shifts:</h4>
+            {datesAndShifts.map((item, index) => (
+              <div key={index}>
+                Date: {item.date} | Shifts:{" "}
+                {item.shiftIds
+                  .map(
+                    (shiftId) =>
+                      shifts.find((shift) => shift.id === shiftId)?.name
+                  )
+                  .join(", ")}
+              </div>
+            ))}
+          </div>
+
           <FormControl fullWidth margin="normal">
             <InputLabel>Department</InputLabel>
             <Select
               value={selectedDepartmentId}
               onChange={(e) => setSelectedDepartmentId(e.target.value)}
             >
-              {departments.map((department) => (
-                <MenuItem key={department.id} value={department.id}>
-                  {department.departmentName}
+              {departments.map((dept) => (
+                <MenuItem key={dept.id} value={dept.id}>
+                  {dept.departmentName}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog} sx={{ color: "#469E82" }}>
+          <Button onClick={handleCloseDialog} color="primary">
             Cancel
           </Button>
-          <Button
-            onClick={editingDoctor ? handleUpdateDoctor : handleAddDoctor}
-            sx={{ color: "#469E82" }}
-          >
-            {editingDoctor ? "Update Doctor" : "Add Doctor"}
+          <Button onClick={handleAddDoctor} color="primary">
+            Add
+          </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openScheduleDialog}
+        onClose={() => setOpenScheduleDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogTitle>Doctor Schedule Details</DialogTitle>
+        <DialogContent>
+          {selectedDoctorSchedules.length > 0 ? (
+            <div>
+              {selectedDoctorSchedules.map(({ date, shifts }) => (
+                <div key={date}>
+                  Date: {date} | Shift: {shifts}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div>No schedules available for this doctor.</div>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenScheduleDialog(false)} color="primary">
+            Close
           </Button>
         </DialogActions>
       </Dialog>

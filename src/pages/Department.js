@@ -26,15 +26,13 @@ const Department = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentDepartmentId, setCurrentDepartmentId] = useState(null);
-
   const dispatch = useDispatch();
   const departments = useSelector((state) => state.department.departments);
   const rooms = useSelector((state) => state.room.rooms);
   const doctors = useSelector((state) => state.doctor.doctors);
-
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [filteredDepartments, setfilteredDepartments] = useState(departments);
+  const [filteredDepartments, setFilteredDepartments] = useState(departments);
 
   const handleOpenDialog = (department = null) => {
     if (department) {
@@ -91,7 +89,7 @@ const Department = () => {
   };
 
   useEffect(() => {
-    setfilteredDepartments(departments);
+    setFilteredDepartments(departments);
   }, [departments]);
 
   const getRoomsForDepartment = (departmentId) => {
@@ -121,15 +119,14 @@ const Department = () => {
       return true;
     });
 
-    setfilteredDepartments(filtered);
+    setFilteredDepartments(filtered);
   };
 
   const handleResetFilter = () => {
-    setfilteredDepartments(departments);
+    setFilteredDepartments(departments);
     setStartDate("");
     setEndDate("");
   };
-
   return (
     <div>
       <Button

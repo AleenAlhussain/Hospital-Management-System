@@ -11,7 +11,7 @@ const doctorSlice = createSlice({
     addDoctor: (state, action) => {
       state.doctors.push(action.payload);
     },
-    updateDoctorSchedule: (state, action) => {
+    updateDoctor: (state, action) => {
       const index = state.doctors.findIndex((doc) => doc.id === action.payload.id);
       if (index !== -1) {
         state.doctors[index] = { ...state.doctors[index], ...action.payload };
@@ -26,5 +26,5 @@ const doctorSlice = createSlice({
   },
 });
 
-export const { addDoctor, updateDoctorSchedule, deleteDoctor, setDoctors } = doctorSlice.actions;
+export const { addDoctor, updateDoctor, deleteDoctor, setDoctors } = doctorSlice.actions;
 export default doctorSlice.reducer;

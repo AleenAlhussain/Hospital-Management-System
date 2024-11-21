@@ -14,14 +14,20 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import PeopleIcon from "@mui/icons-material/People";
 import LocalHospitalIcon from "@mui/icons-material/LocalHospital";
-import EventIcon from "@mui/icons-material/Event";
 import CloseIcon from "@mui/icons-material/Close";
 import BedroomChildIcon from "@mui/icons-material/BedroomChild";
 import BusinessIcon from "@mui/icons-material/Business";
 import HealthAndSafetyIcon from "@mui/icons-material/HealthAndSafety";
 import logo from "../Assets/logo.png";
 import MedicalServicesIcon from "@mui/icons-material/MedicalServices";
-
+import HealingIcon from "@mui/icons-material/Healing";
+import DescriptionIcon from "@mui/icons-material/Description";
+import PersonIcon from "@mui/icons-material/Person";
+import FaceIcon from "@mui/icons-material/Face";
+import MeetingRoomIcon from "@mui/icons-material/MeetingRoom";
+import GroupIcon from "@mui/icons-material/Group";
+import HotelIcon from "@mui/icons-material/Hotel";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
 const Sidebar = ({ open, onClose }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -157,16 +163,15 @@ const Sidebar = ({ open, onClose }) => {
           }}
         >
           <ListItemIcon sx={{ minWidth: "40px" }}>
-            <LocalHospitalIcon sx={{ color: "#469E82" }} />{" "}
+            <MedicalServicesIcon sx={{ color: "#469E82" }} />{" "}
           </ListItemIcon>
           <ListItemText primary="Services" />
           {isMobile && <ChevronRightIcon />}
         </ListItem>
-
         <ListItem
           button
           component={NavLink}
-          to="/appointments"
+          to="/surgical_operation"
           onClick={onClose}
           sx={{
             padding: 2,
@@ -176,15 +181,15 @@ const Sidebar = ({ open, onClose }) => {
           }}
         >
           <ListItemIcon sx={{ minWidth: "40px" }}>
-            <EventIcon sx={{ color: "#469E82" }} />
+            <LocalHospitalIcon sx={{ color: "#469E82" }} />
           </ListItemIcon>
-          <ListItemText primary="Appointments" />
+          <ListItemText primary="Surgical Operation" />
           {isMobile && <ChevronRightIcon />}
         </ListItem>
         <ListItem
           button
           component={NavLink}
-          to="/surgery-scheduler"
+          to="/nurses"
           onClick={onClose}
           sx={{
             padding: 2,
@@ -194,12 +199,137 @@ const Sidebar = ({ open, onClose }) => {
           }}
         >
           <ListItemIcon sx={{ minWidth: "40px" }}>
-            <MedicalServicesIcon sx={{ color: "#469E82" }} />
+            <HealingIcon sx={{ color: "#469E82" }} />
           </ListItemIcon>
-          <ListItemText primary="Surgery Scheduler" />
+          <ListItemText primary="Nurse" />
           {isMobile && <ChevronRightIcon />}
         </ListItem>
-
+        <ListItem
+          button
+          component={NavLink}
+          to="/medical_record"
+          onClick={onClose}
+          sx={{
+            padding: 2,
+            color: "grey.700",
+            "&:hover": { color: "#469E82" },
+            "&.active": { color: "#469E82" },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: "40px" }}>
+            <DescriptionIcon sx={{ color: "#469E82" }} />
+          </ListItemIcon>
+          <ListItemText primary="Medical Recorder" />
+          {isMobile && <ChevronRightIcon />}
+        </ListItem>
+        <ListItem
+          button
+          component={NavLink}
+          to="/receptionist"
+          onClick={onClose}
+          sx={{
+            padding: 2,
+            color: "grey.700",
+            "&:hover": { color: "#469E82" },
+            "&.active": { color: "#469E82" },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: "40px" }}>
+            <PersonIcon sx={{ color: "#469E82" }} />
+          </ListItemIcon>
+          <ListItemText primary="Receptionist" />
+          {isMobile && <ChevronRightIcon />}
+        </ListItem>
+        <ListItem
+          button
+          component={NavLink}
+          to="/patient_service"
+          onClick={onClose}
+          sx={{
+            padding: 2,
+            color: "grey.700",
+            "&:hover": { color: "#469E82" },
+            "&.active": { color: "#469E82" },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: "40px" }}>
+            <FaceIcon sx={{ color: "#469E82" }} />
+          </ListItemIcon>
+          <ListItemText primary="Patient Service" />
+          {isMobile && <ChevronRightIcon />}
+        </ListItem>
+        <ListItem
+          button
+          component={NavLink}
+          to="/admission"
+          onClick={onClose}
+          sx={{
+            padding: 2,
+            color: "grey.700",
+            "&:hover": { color: "#469E82" },
+            "&.active": { color: "#469E82" },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: "40px" }}>
+            <MeetingRoomIcon sx={{ color: "#469E82" }} />
+          </ListItemIcon>
+          <ListItemText primary="Admission" />
+          {isMobile && <ChevronRightIcon />}
+        </ListItem>
+        <ListItem
+          button
+          component={NavLink}
+          to="/staff"
+          onClick={onClose}
+          sx={{
+            padding: 2,
+            color: "grey.700",
+            "&:hover": { color: "#469E82" },
+            "&.active": { color: "#469E82" },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: "40px" }}>
+            <GroupIcon sx={{ color: "#469E82" }} />
+          </ListItemIcon>
+          <ListItemText primary="Staff" />
+          {isMobile && <ChevronRightIcon />}
+        </ListItem>
+        <ListItem
+          button
+          component={NavLink}
+          to="/room_availability"
+          onClick={onClose}
+          sx={{
+            padding: 2,
+            color: "grey.700",
+            "&:hover": { color: "#469E82" },
+            "&.active": { color: "#469E82" },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: "40px" }}>
+            <HotelIcon sx={{ color: "#469E82" }} />
+          </ListItemIcon>
+          <ListItemText primary="Room Availability" />
+          {isMobile && <ChevronRightIcon />}
+        </ListItem>
+        <ListItem
+          button
+          component={NavLink}
+          to="/appointment"
+          onClick={onClose}
+          sx={{
+            padding: 2,
+            color: "grey.700",
+            "&:hover": { color: "#469E82" },
+            "&.active": { color: "#469E82" },
+          }}
+        >
+          <ListItemIcon sx={{ minWidth: "40px" }}>
+            <AccessTimeIcon sx={{ color: "#469E82" }} />
+          </ListItemIcon>
+          <ListItemText primary="Appointment" />
+          {isMobile && <ChevronRightIcon />}
+        </ListItem>
       </List>
     </Drawer>
   );
