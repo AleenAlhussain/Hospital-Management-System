@@ -1,13 +1,36 @@
-🌟 Collaboration Alert! 🌟
+🌟 Hospital Management System 🌟
+Overview
+This system streamlines healthcare operations, providing tools for managing hospital departments, rooms, doctors, services, and patient workflows efficiently.
 
-We're building a Hospital Management System to transform healthcare operations! 🚑🏥
+Key Features
+Department Management
 
-Key Features:
-🔹 Department Management: Create & organize hospital departments and their rooms.
-🔹 Room Management: Track room statuses (vacant, occupied, maintenance) & assign them to patients.
-🔹 Doctor Management: Manage doctor schedules, specialties, and shifts.
-🔹 Hospital Services: Provide seamless access to imaging, labs, and other medical services.
-🔹 Patient Admission & Discharge: Simplify patient registration, room assignments, and service allocation.
-🔹 Surgical Operation Scheduling: Plan surgeries efficiently with team & resource allocation.
-🔹 Room Availability Tracking: Real-time updates on room statuses across departments.
+Add, update, and organize hospital departments.
+Display associated rooms and doctor availability.
+Room Management
 
+Monitor room statuses: vacant, occupied, or under maintenance.
+Assign rooms to patients dynamically.
+Doctor Management
+
+Manage doctor profiles, including names, specialties, and availability.
+Schedule shifts and ensure adequate coverage.
+Hospital Services
+
+Track availability and costs of medical services like labs and imaging.
+Link services to patients and departments.
+Patient Admission & Discharge
+
+Simplify patient onboarding with room assignments.
+Manage discharges with service billing and follow-up care.
+Surgical Operation Scheduling
+
+Schedule surgeries efficiently with resources and personnel allocation.
+Room Availability Tracking
+
+Real-time updates on room statuses across departments.
+Technologies Used
+Front-end: React.js, MUI (Material-UI) for responsive design.
+State Management: Redux for seamless data flow.
+Routing: React Router v6 for navigation.
+API Communication: RESTful APIs for backend integration.
